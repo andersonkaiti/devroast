@@ -1,19 +1,20 @@
 import { cn } from '@lib/utils'
+import type * as React from 'react'
 import { type BundledLanguage, codeToTokens } from 'shiki'
 
-type CodeBlockProps = {
+type CodeBlockRootProps = {
   code: string
   lang: BundledLanguage
-  filename?: string
   className?: string
+  children?: React.ReactNode
 }
 
-export async function CodeBlock({
+async function CodeBlockRoot({
   code,
   lang,
-  filename,
   className,
-}: CodeBlockProps) {
+  children,
+}: CodeBlockRootProps) {
   const { tokens, bg } = await codeToTokens(code, {
     lang,
     theme: 'vesper',
@@ -27,16 +28,7 @@ export async function CodeBlock({
       )}
       style={{ background: bg }}
     >
-      {filename && (
-        <div className="flex h-10 items-center gap-3 border-zinc-800 border-b px-4">
-          <span className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-full bg-red-500" />
-            <span className="size-2.5 rounded-full bg-amber-500" />
-            <span className="size-2.5 rounded-full bg-emerald-500" />
-          </span>
-          <span className="text-gray-600 text-xs">{filename}</span>
-        </div>
-      )}
+      {children}
       <div className="flex overflow-x-auto">
         <div className="select-none border-zinc-800 border-r bg-zinc-950 px-3 py-3 text-right text-gray-600">
           {tokens.map((_, i) => (
@@ -60,3 +52,28 @@ export async function CodeBlock({
     </div>
   )
 }
+
+function Filename({
+  className,
+  children,
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={cn(
+        'flex h-10 items-center gap-3 border-zinc-800 border-b px-4',
+        className,
+      )}
+    >
+      <span className="flex items-center gap-1.5">
+        <span className="size-2.5 rounded-full bg-red-500" />
+        <span className="size-2.5 rounded-full bg-amber-500" />
+        <span className="size-2.5 rounded-full bg-emerald-500" />
+      </span>
+      <span className="text-gray-600 text-xs">{children}</span>
+    </div>
+  )
+}
+
+const CodeBlock = Object.assign(CodeBlockRoot, { Filename })
+
+export { CodeBlock }

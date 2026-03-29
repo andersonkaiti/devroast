@@ -32,15 +32,13 @@ const dot = tv({
 export type BadgeSeverity = NonNullable<VariantProps<typeof badge>['severity']>
 
 type BadgeProps = React.HTMLAttributes<HTMLSpanElement> &
-  VariantProps<typeof badge> & {
-    label: string
-  }
+  VariantProps<typeof badge>
 
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ severity, label, className, ...props }, ref) => (
+  ({ severity, className, children, ...props }, ref) => (
     <span ref={ref} className={badge({ severity, className })} {...props}>
       <span className={dot({ severity })} />
-      {label}
+      {children}
     </span>
   ),
 )
