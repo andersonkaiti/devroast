@@ -1,3 +1,4 @@
+import { Navbar } from '@components/navbar'
 import type { Metadata } from 'next'
 import { JetBrains_Mono } from 'next/font/google'
 import './globals.css'
@@ -9,7 +10,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'DevRoast',
-  description: '',
+  description: 'Paste your code. Get roasted.',
 }
 
 export default function RootLayout({
@@ -19,7 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={jetbrainsMono.variable}>
-      <body className="bg-zinc-950 font-mono text-zinc-50">{children}</body>
+      <body className="min-h-screen bg-neutral-950 font-mono text-zinc-50">
+        <Navbar />
+        {children}
+      </body>
     </html>
   )
 }
