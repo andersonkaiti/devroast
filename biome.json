@@ -1,13 +1,15 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
   "files": {
-    "includes": ["src/**"]
+    "includes": [
+      "src/**"
+    ]
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 2,
-    "lineWidth": 100
+    "lineWidth": 80
   },
   "linter": {
     "enabled": true,
@@ -18,8 +20,15 @@
           "level": "warn",
           "fix": "safe",
           "options": {
-            "attributes": ["className"],
-            "functions": ["clsx", "cn", "cva", "twMerge"]
+            "attributes": [
+              "className"
+            ],
+            "functions": [
+              "clsx",
+              "cn",
+              "cva",
+              "twMerge"
+            ]
           }
         }
       }
@@ -31,7 +40,22 @@
       "semicolons": "asNeeded"
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/components/ui/code-block.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
+    }
+  ],
   "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
     "formatter": {
       "enabled": true
     },

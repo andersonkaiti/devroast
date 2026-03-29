@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+@theme inline {
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}

@@ -29,8 +29,9 @@ pnpm format     # format only
 All application code lives under `src/`:
 
 - `src/app/` — Next.js App Router: layouts, pages, and route segments go here
-- `src/app/layout.tsx` — root layout (minimal: no fonts, `lang="pt-BR"`)
-- `src/app/globals.css` — single `@import "tailwindcss"` entry point for styles
+- `src/app/layout.tsx` — root layout; loads JetBrains Mono via `next/font/google` as `--font-jetbrains`
+- `src/app/globals.css` — Tailwind entry point; overrides `--font-mono` via `@theme inline`
+- `src/components/ui/` — generic UI components; import from `@/components/ui` (barrel)
 
 ## Commit conventions
 
@@ -70,15 +71,36 @@ Follows [Conventional Commits](https://www.conventionalcommits.org/) combined wi
 **Examples:**
 
 ```
-🎉 feat: initial project setup
-✨ feat: add auth flow
-🐛 fix: resolve token expiry
-♻️ refactor: extract form logic
-📦 build: add radix-ui deps
+🎉 feat(core): initial project setup
+✨ feat(auth): add auth flow
+🐛 fix(auth): resolve token expiry
+♻️ refactor(forms): extract form logic
+📦 build(deps): add radix-ui deps
 ```
+
+## Typography
+
+Two font utilities only — no custom font classes:
+
+| Class | Font | Use for |
+|---|---|---|
+| `font-mono` | JetBrains Mono | All code, labels, UI text |
+| `font-sans` | System default | Descriptive / body text |
+
+**How it works:** `next/font/google` loads JetBrains Mono and injects `--font-jetbrains` on `<html>`. `globals.css` maps it to Tailwind's built-in `--font-mono` via `@theme inline`, so the standard `font-mono` utility resolves to JetBrains Mono. `font-sans` is untouched and falls back to the OS system font stack.
+
+**Never** create custom font utilities (e.g. `font-primary`, `font-ibm`). Override `--font-mono` or `--font-sans` in `@theme inline` if the font source changes.
+
+## Tailwind class conventions
+
+- Always use **canonical class names** — prefer `text-white` over `text-(--color-white)`, `bg-black` over `bg-(--color-black)`, etc.
+- Inline CSS variable syntax (`text-(--var)`) is only valid when there is no canonical equivalent.
+- `useSortedClasses` (Biome nursery) auto-sorts classes — run `pnpm check` to apply.
 
 ## Biome config highlights
 
 - 2-space indent, single quotes, semicolons only when required (`asNeeded`)
+- CSS parser: `tailwindDirectives: true` — understands `@theme`, `@layer`, `@apply`
+- CSS linter: `noUnknownAtRules` disabled — Tailwind v4 at-rules are intentional
 - `useSortedClasses` (nursery) auto-sorts Tailwind utility classes in `className`, `clsx`, `cn`, `cva`, `twMerge`
 - Scoped to `src/**` only
