@@ -7,12 +7,18 @@ export function Navbar() {
         <span className="font-bold text-emerald-500 text-xl">{'>'}</span>
         <span className="font-medium text-[18px] text-zinc-50">devroast</span>
       </Link>
-      <nav>
+      <nav className="flex items-center gap-6">
         <Link
           href="/leaderboard"
           className="text-[13px] text-gray-500 transition-colors hover:text-zinc-50"
         >
           leaderboard
+        </Link>
+        <Link
+          href="/components"
+          className="text-[13px] text-gray-500 transition-colors hover:text-zinc-50"
+        >
+          components
         </Link>
       </nav>
     </header>
