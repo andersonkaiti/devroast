@@ -25,7 +25,8 @@ const ScoreRing = React.forwardRef<HTMLDivElement, ScoreRingProps>(
     return (
       <div
         ref={ref}
-        className={cn('relative inline-flex', className)}
+        className={cn('relative', className)}
+        style={{ width: SIZE, height: SIZE }}
         {...props}
       >
         <svg
