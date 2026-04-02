@@ -8,18 +8,25 @@
     "start": "next start",
     "lint": "biome lint ./src",
     "format": "biome format --write ./src",
-    "check": "biome check --write ./src"
+    "check": "biome check --write ./src",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
     "@base-ui-components/react": "1.0.0-rc.0",
     "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.2",
     "highlight.js": "^11.11.1",
     "next": "16.2.1",
+    "postgres": "^3.4.8",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "shiki": "^4.0.2",
     "tailwind-merge": "^3.5.0",
-    "tailwind-variants": "^3.2.2"
+    "tailwind-variants": "^3.2.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.9",
@@ -28,6 +35,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
