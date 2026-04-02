@@ -138,7 +138,9 @@ async function generateRoasts() {
 
     console.log('✅ Seed completo!')
     console.log(`   - 100 roasts em 100 languages diferentes`)
-    console.log(`   - ${totalFindings} findings (média de ${(totalFindings / 100).toFixed(1)} por roast)`)
+    console.log(
+      `   - ${totalFindings} findings (média de ${(totalFindings / 100).toFixed(1)} por roast)`,
+    )
     console.log(`   - Tempo: ${elapsed}ms\n`)
   } catch (error) {
     console.error('❌ Erro durante seed:', error)
