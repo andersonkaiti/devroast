@@ -1,8 +1,12 @@
 'use client'
 
 import { Button } from '@components/ui/button'
+import { HighlightedCodeDisplay } from '@components/ui/highlighted-code-display'
+import { LanguageSelector } from '@components/ui/language-selector'
 import { Toggle } from '@components/ui/toggle'
-import { useState } from 'react'
+import { EditorProvider } from '@context/editor-context'
+import { useEditorHighlighter } from '@hooks/useEditorHighlighter'
+import { useCallback, useRef, useState } from 'react'
 
 const DOTS = [
   { key: 'close', className: 'bg-red-500' },
@@ -10,57 +14,148 @@ const DOTS = [
   { key: 'maximize', className: 'bg-emerald-500' },
 ]
 
-export function CodeInput() {
+interface CodeInputV2Props {
+  onRoast?: (code: string, language: string) => void
+}
+
+export function CodeInput({ onRoast }: CodeInputV2Props) {
   const [roastMode, setRoastMode] = useState(true)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null) // For scroll sync if needed
+
+  const {
+    code,
+    language,
+    detectedLanguage,
+    tokens,
+    backgroundColor,
+    setCode,
+    setLanguage,
+  } = useEditorHighlighter()
+
+  const handleInput = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setCode(event.currentTarget.value)
+    },
+    [setCode],
+  )
+
+  const handleScroll = useCallback(() => {
+    if (textareaRef.current && overlayRef.current) {
+      overlayRef.current.scrollTop = textareaRef.current.scrollTop
+      overlayRef.current.scrollLeft = textareaRef.current.scrollLeft
+    }
+  }, [])
+
+  const handleRoast = useCallback(() => {
+    if (onRoast) {
+      onRoast(code, language)
+    }
+  }, [code, language, onRoast])
+
+  // Calculate number of lines for the line numbers column
+  const lineCount = code.split('\n').length || 1
 
   return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="overflow-hidden border border-zinc-800 bg-zinc-950">
-        <div className="flex h-10 items-center border-zinc-800 border-b px-4">
-          <div className="flex items-center gap-2">
-            {DOTS.map((dot) => (
-              <span
-                key={dot.key}
-                className={`block size-3 rounded-full ${dot.className}`}
+    <EditorProvider
+      value={{
+        code,
+        language,
+        detectedLanguage,
+      }}
+    >
+      <div className="flex w-full flex-col gap-4">
+        <div className="border border-zinc-800 bg-zinc-950">
+          <div className="flex h-10 items-center justify-between border-zinc-800 border-b px-4">
+            <div className="flex items-center gap-2">
+              {DOTS.map((dot) => (
+                <span
+                  key={dot.key}
+                  className={`block size-3 rounded-full ${dot.className}`}
+                />
+              ))}
+            </div>
+            <div className="relative z-20">
+              <LanguageSelector
+                value={
+                  (language as string) === 'js' ? detectedLanguage : language
+                }
+                onChange={setLanguage}
               />
-            ))}
+            </div>
           </div>
-        </div>
-        <div className="flex h-[240px] sm:h-[360px]">
-          <div className="flex w-12 shrink-0 flex-col items-end border-zinc-800 border-r bg-neutral-950 px-3 py-4">
-            {Array.from({ length: 20 }, (_, i) => String(i + 1)).map((n) => (
-              <span key={n} className="text-[12px] text-gray-600 leading-5">
-                {n}
-              </span>
-            ))}
-          </div>
-          <textarea
-            className="flex-1 resize-none bg-transparent p-4 text-[13px] text-zinc-50 leading-5 placeholder:text-gray-600 focus:outline-none"
-            placeholder={
-              "// paste your code here\n// we'll roast it — no mercy"
-            }
-            spellCheck={false}
-          />
-        </div>
-      </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Toggle
-            checked={roastMode}
-            onChange={setRoastMode}
-            label="roast mode"
-          />
-          {roastMode && (
-            <span className="font-sans text-[12px] text-gray-600">
-              {'// maximum sarcasm enabled'}
-            </span>
-          )}
+          <div className="flex h-[240px] overflow-hidden sm:h-[360px]">
+            {/* Line numbers */}
+            <div className="flex w-12 shrink-0 flex-col items-end overflow-hidden border-zinc-800 border-r bg-neutral-950 px-3 py-4">
+              {Array.from({ length: Math.max(lineCount, 20) }, (_, i) =>
+                String(i + 1),
+              ).map((n) => (
+                <span key={n} className="text-[12px] text-gray-600 leading-5">
+                  {n}
+                </span>
+              ))}
+            </div>
+
+            {/* Editor with overlay pattern */}
+            <div className="relative flex-1 overflow-hidden">
+              {/* Textarea (transparent, on top for input) */}
+              <textarea
+                ref={textareaRef}
+                className="relative z-10 block h-full w-full resize-none bg-transparent p-4 text-transparent caret-zinc-50 placeholder:text-gray-600 focus:outline-none"
+                style={{
+                  fontFamily: 'JetBrains Mono, monospace',
+                  fontSize: '13px',
+                  lineHeight: '1.25rem',
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                }}
+                placeholder={
+                  "// paste your code here\n// we'll roast it — no mercy"
+                }
+                spellCheck={false}
+                value={code}
+                onChange={handleInput}
+                onScroll={handleScroll}
+              />
+
+              {/* Highlight display (behind textarea) */}
+              <div
+                ref={overlayRef}
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                <HighlightedCodeDisplay
+                  tokens={tokens}
+                  backgroundColor={backgroundColor}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <Button variant="primary" className="w-full sm:w-auto">
-          $ roast_my_code
-        </Button>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <Toggle
+              checked={roastMode}
+              onChange={setRoastMode}
+              label="roast mode"
+            />
+            {roastMode && (
+              <span className="font-sans text-[12px] text-gray-600">
+                {'// maximum sarcasm enabled'}
+              </span>
+            )}
+          </div>
+          <Button
+            variant="primary"
+            className="w-full sm:w-auto"
+            onClick={handleRoast}
+          >
+            $ roast_my_code
+          </Button>
+        </div>
       </div>
-    </div>
+    </EditorProvider>
   )
 }
