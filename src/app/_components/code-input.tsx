@@ -85,9 +85,9 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
             </div>
           </div>
 
-          <div className="flex h-[240px] overflow-hidden sm:h-[360px]">
+          <div className="flex h-[240px] overflow-y-auto sm:h-[360px]">
             {/* Line numbers */}
-            <div className="flex w-12 shrink-0 flex-col items-end overflow-hidden border-zinc-800 border-r bg-neutral-950 px-3 py-4">
+            <div className="flex w-12 shrink-0 flex-col items-end overflow-y-auto border-zinc-800 border-r bg-neutral-950 px-3 py-4">
               {Array.from({ length: Math.max(lineCount, 20) }, (_, i) =>
                 String(i + 1),
               ).map((n) => (
@@ -98,7 +98,7 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
             </div>
 
             {/* Editor with overlay pattern */}
-            <div className="relative flex-1 overflow-hidden">
+            <div className="relative flex-1 overflow-y-auto">
               {/* Textarea (transparent, on top for input) */}
               <textarea
                 ref={textareaRef}
@@ -123,7 +123,7 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
               {/* Highlight display (behind textarea) */}
               <div
                 ref={overlayRef}
-                className="pointer-events-none absolute inset-0 overflow-hidden"
+                className="pointer-events-none absolute inset-0 overflow-y-auto"
               >
                 <HighlightedCodeDisplay
                   tokens={tokens}
