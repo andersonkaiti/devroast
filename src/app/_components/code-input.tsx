@@ -21,7 +21,8 @@ interface CodeInputV2Props {
 export function CodeInput({ onRoast }: CodeInputV2Props) {
   const [roastMode, setRoastMode] = useState(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null) // For scroll sync if needed
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const lineNumbersRef = useRef<HTMLDivElement>(null)
 
   const {
     code,
@@ -44,6 +45,9 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
     if (textareaRef.current && overlayRef.current) {
       overlayRef.current.scrollTop = textareaRef.current.scrollTop
       overlayRef.current.scrollLeft = textareaRef.current.scrollLeft
+    }
+    if (textareaRef.current && lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop
     }
   }, [])
 
@@ -87,7 +91,10 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
 
           <div className="flex h-[240px] overflow-y-auto sm:h-[360px]">
             {/* Line numbers */}
-            <div className="flex w-12 shrink-0 flex-col items-end overflow-y-auto border-zinc-800 border-r bg-neutral-950 px-3 py-4">
+            <div
+              ref={lineNumbersRef}
+              className="flex w-12 shrink-0 flex-col items-end overflow-hidden border-zinc-800 border-r bg-neutral-950 px-3 py-4"
+            >
               {Array.from({ length: Math.max(lineCount, 20) }, (_, i) =>
                 String(i + 1),
               ).map((n) => (
