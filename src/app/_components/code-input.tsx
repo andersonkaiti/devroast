@@ -14,6 +14,8 @@ const DOTS = [
   { key: 'maximize', className: 'bg-emerald-500' },
 ]
 
+const CHAR_LIMIT = 2000
+
 interface CodeInputV2Props {
   onRoast?: (code: string, language: string) => void
 }
@@ -57,6 +59,9 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
     }
   }, [code, language, onRoast])
 
+  const charCount = code.length
+  const isOverLimit = charCount > CHAR_LIMIT
+
   // Calculate number of lines for the line numbers column
   const lineCount = code.split('\n').length || 1
 
@@ -89,7 +94,7 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
             </div>
           </div>
 
-          <div className="flex h-[240px] overflow-y-auto sm:h-[360px]">
+          <div className="relative flex h-[240px] overflow-y-auto sm:h-[360px]">
             {/* Line numbers */}
             <div
               ref={lineNumbersRef}
@@ -138,6 +143,13 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
                 />
               </div>
             </div>
+            <span
+              className={`pointer-events-none absolute right-2 bottom-2 z-20 font-mono text-[11px] tabular-nums ${
+                isOverLimit ? 'text-red-500' : 'text-gray-600'
+              }`}
+            >
+              {charCount}/{CHAR_LIMIT}
+            </span>
           </div>
         </div>
 
@@ -158,6 +170,7 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
             variant="primary"
             className="w-full sm:w-auto"
             onClick={handleRoast}
+            disabled={isOverLimit}
           >
             $ roast_my_code
           </Button>
