@@ -1,5 +1,3 @@
-import { Suspense } from 'react'
-
 export const dynamic = 'force-dynamic'
 
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
@@ -7,7 +5,6 @@ import { CodeInput } from './_components/code-input'
 import { HeroTitle } from './_components/hero'
 import { LeaderboardPreview } from './_components/leaderboard-preview'
 import { StatsHint } from './_components/stats-hint'
-import { StatsHintSkeleton } from './_components/stats-hint-skeleton'
 
 export default async function Page() {
   void prefetch(trpc.leaderboard.stats.queryOptions())
@@ -20,9 +17,7 @@ export default async function Page() {
 
           <CodeInput />
 
-          <Suspense fallback={<StatsHintSkeleton />}>
-            <StatsHint />
-          </Suspense>
+          <StatsHint />
         </div>
 
         <div className="h-4 sm:h-8" />
