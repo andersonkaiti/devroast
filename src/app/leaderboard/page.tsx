@@ -1,4 +1,6 @@
+import { CodeBlock } from '@components/ui'
 import { Code2, Trophy } from 'lucide-react'
+import type { BundledLanguage } from 'shiki'
 
 export const metadata = {
   title: 'Leaderboard - DevRoast',
@@ -9,7 +11,6 @@ interface LeaderboardEntry {
   id: string
   rank: number
   code: string
-  codeLines: string[]
   language: string
   score: number
   author: string
@@ -22,7 +23,6 @@ const LEADERBOARD_DATA: LeaderboardEntry[] = [
     code: `function add(a, b) {
   return a + b;
 }`,
-    codeLines: ['function add(a, b) {', '  return a + b;', '}'],
     language: 'javascript',
     score: 2.5,
     author: 'dev_noob',
@@ -33,7 +33,6 @@ const LEADERBOARD_DATA: LeaderboardEntry[] = [
     code: `var x = 1;
 var y = 2;
 var z = x + y;`,
-    codeLines: ['var x = 1;', 'var y = 2;', 'var z = x + y;'],
     language: 'javascript',
     score: 3.1,
     author: 'junior_dev',
@@ -46,7 +45,6 @@ var z = x + y;`,
 } else {
   max = b;
 }`,
-    codeLines: ['if (a > b) {', '  max = a;', '} else {', '  max = b;', '}'],
     language: 'python',
     score: 4.2,
     author: 'code_warrior',
@@ -57,7 +55,6 @@ var z = x + y;`,
     code: `setTimeout(() => {
   console.log("hello");
 }, 1000);`,
-    codeLines: ['setTimeout(() => {', '  console.log("hello");', '}, 1000);'],
     language: 'javascript',
     score: 5.0,
     author: 'async_lover',
@@ -70,21 +67,15 @@ var z = x + y;`,
 } catch (e) {
   console.log("error");
 }`,
-    codeLines: [
-      'try {',
-      '  doSomething();',
-      '} catch (e) {',
-      '  console.log("error");',
-      '}',
-    ],
     language: 'javascript',
     score: 5.8,
     author: 'error_handler',
   },
 ]
 
-function LeaderboardCard({ entry }: { entry: LeaderboardEntry }) {
-  const codePreview = entry.codeLines.slice(0, 3)
+async function LeaderboardCard({ entry }: { entry: LeaderboardEntry }) {
+  const previewCode = entry.code.split('\n').slice(0, 3).join('\n')
+  const lineCount = previewCode.split('\n').length
 
   return (
     <div className="flex flex-col border border-zinc-800 bg-neutral-950">
@@ -104,38 +95,16 @@ function LeaderboardCard({ entry }: { entry: LeaderboardEntry }) {
         </div>
         <div className="flex items-center gap-3 text-xs">
           <span className="text-zinc-500">{entry.language}</span>
-          <span className="text-zinc-700">{codePreview.length} lines</span>
+          <span className="text-zinc-700">{lineCount} lines</span>
         </div>
       </div>
 
       {/* Code Block */}
-      <div className="flex h-24 overflow-hidden bg-zinc-900">
-        {/* Line Numbers */}
-        <div className="flex flex-col items-end gap-1.5 border-zinc-800 border-r bg-zinc-950 px-2.5 py-3 text-right">
-          {codePreview.map((line, i) => (
-            <span
-              key={`${entry.id}-line-${line}`}
-              className="text-xs text-zinc-700"
-            >
-              {i + 1}
-            </span>
-          ))}
-        </div>
-
-        {/* Code Content */}
-        <div className="flex-1 overflow-hidden px-4 py-3">
-          <div className="space-y-1.5 font-mono text-xs">
-            {codePreview.map((line) => (
-              <div
-                key={`${entry.id}-${line}`}
-                className="truncate text-zinc-400"
-              >
-                {line}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <CodeBlock
+        code={previewCode}
+        lang={entry.language as BundledLanguage}
+        className="border-0"
+      />
     </div>
   )
 }
