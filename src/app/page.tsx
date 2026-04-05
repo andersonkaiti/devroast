@@ -8,6 +8,7 @@ import { StatsHint } from './_components/stats-hint'
 
 export default async function Page() {
   void prefetch(trpc.leaderboard.stats.queryOptions())
+  void prefetch(trpc.leaderboard.top3.queryOptions())
 
   return (
     <HydrateClient>

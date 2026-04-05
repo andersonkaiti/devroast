@@ -1,5 +1,5 @@
 import { submissions } from '@db/schemas'
-import { avg, count, eq } from 'drizzle-orm'
+import { asc, avg, count, eq } from 'drizzle-orm'
 import { baseProcedure, createTRPCRouter } from '../init'
 
 export const leaderboardRouter = createTRPCRouter({
@@ -16,5 +16,19 @@ export const leaderboardRouter = createTRPCRouter({
       total: result?.total ?? 0,
       avgScore: Number(result?.avgScore ?? 0),
     }
+  }),
+
+  top3: baseProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        id: submissions.id,
+        codePreview: submissions.codePreview,
+        lang: submissions.lang,
+        score: submissions.score,
+      })
+      .from(submissions)
+      .where(eq(submissions.isPublic, true))
+      .orderBy(asc(submissions.score))
+      .limit(3)
   }),
 })
