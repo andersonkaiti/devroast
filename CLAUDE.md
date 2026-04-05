@@ -23,15 +23,75 @@ pnpm format     # format only
 - **Biome 2** — replaces ESLint + Prettier; config in `biome.json`
 - **TypeScript** — strict mode, path alias `@/*` → `src/*`
 - **pnpm** — package manager
+- **tRPC v11** — end-to-end type-safe API; routers in `src/trpc/routers/`, API route at `/api/trpc`
+- **TanStack Query v5** — server-side dehydration + client-side cache; integrated via `@trpc/tanstack-react-query`
+- **Drizzle ORM** — PostgreSQL ORM; schemas in `src/db/schemas/`, migrations via `drizzle-kit`
+- **Zod v4** — schema validation; used for env vars (`src/lib/env.ts`) and tRPC input validation
+- **Shiki v4** — syntax highlighting with the `vesper` theme; singleton in `src/lib/shiki-highlighter.ts`
 
 ## Architecture
 
 All application code lives under `src/`:
 
 - `src/app/` — Next.js App Router: layouts, pages, and route segments go here
-- `src/app/layout.tsx` — root layout; loads JetBrains Mono via `next/font/google` as `--font-jetbrains`
+- `src/app/layout.tsx` — root layout; wraps app in `TRPCReactProvider`; loads JetBrains Mono as `--font-jetbrains`
 - `src/app/globals.css` — Tailwind entry point; overrides `--font-mono` via `@theme inline`
+- `src/app/_components/` — page-specific components (not shared)
+- `src/app/api/trpc/[trpc]/route.ts` — tRPC fetch adapter; handles GET + POST
 - `src/components/ui/` — generic UI components; import from `@/components/ui` (barrel)
+- `src/trpc/` — tRPC + TanStack Query wiring (see tRPC section below)
+- `src/db/` — Drizzle ORM: `index.ts` (connection), `schemas/`, `migrations/`, `seed.ts`
+- `src/lib/` — shared utilities: `utils.ts` (`cn()`), `env.ts` (Zod env), `shiki-highlighter.ts`, `language-utils.ts`
+- `src/hooks/` — custom React hooks
+- `src/context/` — React context providers
+
+## tRPC + TanStack Query
+
+### File layout
+
+| File | Purpose |
+| --- | --- |
+| `src/trpc/init.ts` | tRPC context (DB via `cache()`), error formatting, `createTRPCRouter`, `baseProcedure` |
+| `src/trpc/routers/_app.ts` | Root router; re-exports `AppRouter` type |
+| `src/trpc/routers/<name>.ts` | Feature routers (one file per domain) |
+| `src/trpc/query-client.ts` | `QueryClient` factory — 30 s stale time, dehydrates pending queries |
+| `src/trpc/server.tsx` | Server-side helpers: `HydrateClient`, `prefetch()` for RSC hydration |
+| `src/trpc/client.tsx` | `TRPCReactProvider`, `useTRPC()` hook for client components |
+
+### Usage patterns
+
+**Server Component (prefetch + hydrate):**
+
+```tsx
+import { HydrateClient, prefetch, trpc } from '@/trpc/server'
+
+export default async function Page() {
+  void prefetch(trpc.leaderboard.stats.queryOptions())
+  return <HydrateClient><ClientComponent /></HydrateClient>
+}
+```
+
+**Client Component:**
+
+```tsx
+'use client'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useTRPC } from '@/trpc/client'
+
+export function ClientComponent() {
+  const trpc = useTRPC()
+  const { data } = useSuspenseQuery(trpc.leaderboard.stats.queryOptions())
+}
+```
+
+**Adding a new router:** create `src/trpc/routers/<name>.ts` and register it in `src/trpc/routers/_app.ts`.
+
+## Database (Drizzle ORM)
+
+- Connection: `src/db/index.ts` — reads `DATABASE_URL` from `src/lib/env.ts`
+- Schemas: `src/db/schemas/` — one file per table, barrel re-exported from `src/db/schemas/index.ts`
+- Migrations: managed by `drizzle-kit`; output in `src/db/migrations/`
+- Seeding: `src/db/seed.ts` — run with `tsx` via the `seed` script in `package.json`
 
 ## Commit conventions
 
@@ -83,7 +143,7 @@ Follows [Conventional Commits](https://www.conventionalcommits.org/) combined wi
 Two font utilities only — no custom font classes:
 
 | Class | Font | Use for |
-|---|---|---|
+| --- | --- | --- |
 | `font-mono` | JetBrains Mono | All code, labels, UI text |
 | `font-sans` | System default | Descriptive / body text |
 
