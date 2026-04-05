@@ -3,3 +3,33 @@
 @theme inline {
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
+
+.collapsible-panel {
+  overflow: hidden;
+}
+
+.collapsible-panel[data-open] {
+  animation: collapsible-open 180ms ease-out;
+}
+
+.collapsible-panel[data-closed] {
+  animation: collapsible-close 180ms ease-in;
+}
+
+@keyframes collapsible-open {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--collapsible-panel-height);
+  }
+}
+
+@keyframes collapsible-close {
+  from {
+    height: var(--collapsible-panel-height);
+  }
+  to {
+    height: 0;
+  }
+}

@@ -35,7 +35,7 @@ async function CodeBlockRoot({
             <div key={i}>{i + 1}</div>
           ))}
         </div>
-        <code className="px-4 py-3">
+        <code className="whitespace-pre px-4 py-3">
           {tokens.map((line, i) => (
             <div key={i}>
               {line.length === 0

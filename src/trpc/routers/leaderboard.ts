@@ -22,6 +22,7 @@ export const leaderboardRouter = createTRPCRouter({
     return ctx.db
       .select({
         id: submissions.id,
+        code: submissions.code,
         codePreview: submissions.codePreview,
         lang: submissions.lang,
         score: submissions.score,

@@ -1,8 +1,37 @@
 import { Button } from '@components/ui/button'
+import { CodeBlock } from '@components/ui/code-block'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import type { BundledLanguage } from 'shiki'
+import { getQueryClient, trpc } from '@/trpc/server'
 import { LeaderboardTableContent } from './leaderboard-table-content'
 import { LeaderboardTableSkeleton } from './leaderboard-table-skeleton'
+
+async function LeaderboardTableServer() {
+  const queryClient = getQueryClient()
+
+  const [entries, stats] = await Promise.all([
+    queryClient.fetchQuery(trpc.leaderboard.top3.queryOptions()),
+    queryClient.fetchQuery(trpc.leaderboard.stats.queryOptions()),
+  ])
+
+  const codeBlocks = entries.map((entry) => (
+    <CodeBlock
+      key={entry.id}
+      code={entry.code}
+      lang={entry.lang as BundledLanguage}
+      className="border-0 border-zinc-800 border-t"
+    />
+  ))
+
+  return (
+    <LeaderboardTableContent
+      entries={entries}
+      codeBlocks={codeBlocks}
+      totalSubmissions={stats.total}
+    />
+  )
+}
 
 export function LeaderboardPreview() {
   return (
@@ -28,7 +57,7 @@ export function LeaderboardPreview() {
       </p>
 
       <Suspense fallback={<LeaderboardTableSkeleton />}>
-        <LeaderboardTableContent />
+        <LeaderboardTableServer />
       </Suspense>
     </section>
   )
