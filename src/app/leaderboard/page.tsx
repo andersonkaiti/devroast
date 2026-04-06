@@ -1,155 +1,104 @@
+export const dynamic = 'force-dynamic'
+
 import { CodeBlock } from '@components/ui'
-import { Code2, Trophy } from 'lucide-react'
+import { cn } from '@lib/utils'
+import { Trophy } from 'lucide-react'
+import { Suspense } from 'react'
 import type { BundledLanguage } from 'shiki'
+import { LeaderboardTableSkeleton } from '@/app/_components/leaderboard-table-skeleton'
+import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
+import { LeaderboardPageContent } from './_components/leaderboard-page-content'
 
 export const metadata = {
   title: 'Leaderboard - DevRoast',
   description: 'The most roasted code on the internet',
 }
 
-interface LeaderboardEntry {
-  id: string
-  rank: number
-  code: string
-  language: string
-  score: number
-  author: string
+function scoreColor(score: number) {
+  if (score <= 4) return 'text-red-500'
+  if (score <= 6) return 'text-amber-500'
+  return 'text-emerald-500'
 }
 
-const LEADERBOARD_DATA: LeaderboardEntry[] = [
-  {
-    id: '1',
-    rank: 1,
-    code: `function add(a, b) {
-  return a + b;
-}`,
-    language: 'javascript',
-    score: 2.5,
-    author: 'dev_noob',
-  },
-  {
-    id: '2',
-    rank: 2,
-    code: `var x = 1;
-var y = 2;
-var z = x + y;`,
-    language: 'javascript',
-    score: 3.1,
-    author: 'junior_dev',
-  },
-  {
-    id: '3',
-    rank: 3,
-    code: `if (a > b) {
-  max = a;
-} else {
-  max = b;
-}`,
-    language: 'python',
-    score: 4.2,
-    author: 'code_warrior',
-  },
-  {
-    id: '4',
-    rank: 4,
-    code: `setTimeout(() => {
-  console.log("hello");
-}, 1000);`,
-    language: 'javascript',
-    score: 5.0,
-    author: 'async_lover',
-  },
-  {
-    id: '5',
-    rank: 5,
-    code: `try {
-  doSomething();
-} catch (e) {
-  console.log("error");
-}`,
-    language: 'javascript',
-    score: 5.8,
-    author: 'error_handler',
-  },
-]
+async function LeaderboardPageServer() {
+  const queryClient = getQueryClient()
 
-async function LeaderboardCard({ entry }: { entry: LeaderboardEntry }) {
-  const previewCode = entry.code.split('\n').slice(0, 3).join('\n')
-  const lineCount = previewCode.split('\n').length
+  const [entries, stats] = await Promise.all([
+    queryClient.fetchQuery(trpc.leaderboard.top20.queryOptions()),
+    queryClient.fetchQuery(trpc.leaderboard.stats.queryOptions()),
+  ])
+
+  const codeBlocks = entries.map((entry, i) => ({
+    id: entry.id,
+    node: (
+      <CodeBlock
+        code={entry.code}
+        lang={entry.lang as BundledLanguage}
+        className="border-0 border-zinc-800 border-t"
+      >
+        <div className="flex h-10 items-center gap-4 border-zinc-800 border-b px-4 font-mono">
+          <span className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded-full bg-red-500" />
+            <span className="size-2.5 rounded-full bg-amber-500" />
+            <span className="size-2.5 rounded-full bg-emerald-500" />
+          </span>
+          <span className="shrink-0 text-[12px] text-gray-600">#{i + 1}</span>
+          <span
+            className={cn(
+              'shrink-0 font-bold text-[12px]',
+              scoreColor(Number(entry.score)),
+            )}
+          >
+            {Number(entry.score).toFixed(1)}
+          </span>
+          <span className="shrink-0 text-[12px] text-gray-600">
+            {entry.lang}
+          </span>
+        </div>
+      </CodeBlock>
+    ),
+  }))
 
   return (
-    <div className="flex flex-col border border-zinc-800 bg-neutral-950">
-      {/* Meta Row */}
-      <div className="flex h-12 items-center justify-between border-zinc-800 border-b px-5">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-amber-500" />
-            <span className="text-xs text-zinc-600">{entry.rank}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Code2 className="h-4 w-4 text-emerald-500" />
-            <span className="text-xs text-zinc-600">
-              {entry.score.toFixed(1)}
-            </span>
-          </div>
+    <div className="flex flex-col gap-8">
+      <div className="flex items-center gap-8">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-zinc-600">
+            total submissions
+          </span>
+          <span className="font-bold font-mono text-lg text-zinc-50">
+            {stats.total}
+          </span>
         </div>
-        <div className="flex items-center gap-3 text-xs">
-          <span className="text-zinc-500">{entry.language}</span>
-          <span className="text-zinc-700">{lineCount} lines</span>
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-xs text-zinc-600">avg score</span>
+          <span className="font-bold font-mono text-emerald-500 text-lg">
+            {stats.avgScore.toFixed(1)}
+          </span>
         </div>
       </div>
 
-      {/* Code Block */}
-      <CodeBlock
-        code={previewCode}
-        lang={entry.language as BundledLanguage}
-        className="border-0"
-      />
+      <LeaderboardPageContent codeBlocks={codeBlocks} />
     </div>
   )
 }
 
-export default function LeaderboardPage() {
-  const totalSubmissions = 247
-  const avgScore = 5.2
+export default async function LeaderboardPage() {
+  void prefetch(trpc.leaderboard.stats.queryOptions())
+  void prefetch(trpc.leaderboard.top20.queryOptions())
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        {/* Hero Section */}
-        <section className="mb-10 flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-amber-500" />
-            <h1 className="font-bold font-mono text-3xl">shame leaderboard</h1>
-          </div>
-          <p className="font-mono text-sm text-zinc-500">
-            {/* the most roasted code on the internet */}
-          </p>
-          <div className="flex items-center gap-8 pt-2">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs text-zinc-600">
-                total submissions
-              </span>
-              <span className="font-bold font-mono text-lg text-zinc-50">
-                {totalSubmissions}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-xs text-zinc-600">avg score</span>
-              <span className="font-bold font-mono text-emerald-500 text-lg">
-                {avgScore.toFixed(1)}
-              </span>
-            </div>
-          </div>
-        </section>
+    <HydrateClient>
+      <main className="mx-auto flex w-full max-w-[960px] flex-col gap-8 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
+        <div className="flex items-center gap-2">
+          <Trophy className="h-6 w-6 text-amber-500" />
+          <h1 className="font-bold font-mono text-3xl">shame leaderboard</h1>
+        </div>
 
-        {/* Leaderboard Entries */}
-        <section className="flex flex-col gap-5">
-          {LEADERBOARD_DATA.map((entry) => (
-            <LeaderboardCard key={entry.id} entry={entry} />
-          ))}
-        </section>
-      </div>
-    </main>
+        <Suspense fallback={<LeaderboardTableSkeleton />}>
+          <LeaderboardPageServer />
+        </Suspense>
+      </main>
+    </HydrateClient>
   )
 }

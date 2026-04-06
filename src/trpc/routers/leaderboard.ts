@@ -32,4 +32,18 @@ export const leaderboardRouter = createTRPCRouter({
       .orderBy(asc(submissions.score))
       .limit(3)
   }),
+
+  top20: baseProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        id: submissions.id,
+        code: submissions.code,
+        lang: submissions.lang,
+        score: submissions.score,
+      })
+      .from(submissions)
+      .where(eq(submissions.isPublic, true))
+      .orderBy(asc(submissions.score))
+      .limit(20)
+  }),
 })
