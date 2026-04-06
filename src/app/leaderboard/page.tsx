@@ -11,9 +11,21 @@ export const metadata = {
   description: 'The most roasted code on the internet',
 }
 
-export default async function LeaderboardPage() {
+const MAX_LIMIT = 20
+
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ limit?: string }>
+}) {
+  const { limit: limitParam } = await searchParams
+  const limit = Math.min(
+    Math.max(Number.parseInt(limitParam ?? '20', 10) || 20, 1),
+    MAX_LIMIT,
+  )
+
   void prefetch(trpc.leaderboard.stats.queryOptions())
-  void prefetch(trpc.leaderboard.top20.queryOptions())
+  void prefetch(trpc.leaderboard.top20.queryOptions({ limit }))
 
   return (
     <HydrateClient>
@@ -34,8 +46,8 @@ export default async function LeaderboardPage() {
 
         <LeaderboardStats />
 
-        <Suspense fallback={<LeaderboardTableSkeleton />}>
-          <LeaderboardPageServer />
+        <Suspense fallback={<LeaderboardTableSkeleton count={limit} />}>
+          <LeaderboardPageServer limit={limit} />
         </Suspense>
       </main>
     </HydrateClient>

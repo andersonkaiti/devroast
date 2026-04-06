@@ -10,11 +10,11 @@ function scoreColor(score: number) {
   return 'text-emerald-500'
 }
 
-export async function LeaderboardPageServer() {
+export async function LeaderboardPageServer({ limit }: { limit: number }) {
   const queryClient = getQueryClient()
 
   const entries = await queryClient.fetchQuery(
-    trpc.leaderboard.top20.queryOptions(),
+    trpc.leaderboard.top20.queryOptions({ limit }),
   )
 
   const codeBlocks = entries.map((entry, i) => {

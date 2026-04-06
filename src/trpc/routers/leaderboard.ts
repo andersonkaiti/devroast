@@ -1,5 +1,6 @@
 import { submissions } from '@db/schemas'
 import { asc, avg, count, eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { baseProcedure, createTRPCRouter } from '../init'
 
 export const leaderboardRouter = createTRPCRouter({
@@ -33,17 +34,19 @@ export const leaderboardRouter = createTRPCRouter({
       .limit(3)
   }),
 
-  top20: baseProcedure.query(async ({ ctx }) => {
-    return ctx.db
-      .select({
-        id: submissions.id,
-        code: submissions.code,
-        lang: submissions.lang,
-        score: submissions.score,
-      })
-      .from(submissions)
-      .where(eq(submissions.isPublic, true))
-      .orderBy(asc(submissions.score))
-      .limit(20)
-  }),
+  top20: baseProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(20).default(20) }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db
+        .select({
+          id: submissions.id,
+          code: submissions.code,
+          lang: submissions.lang,
+          score: submissions.score,
+        })
+        .from(submissions)
+        .where(eq(submissions.isPublic, true))
+        .orderBy(asc(submissions.score))
+        .limit(input.limit)
+    }),
 })
