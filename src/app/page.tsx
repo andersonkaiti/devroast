@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic'
-
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
 import { CodeInput } from './_components/code-input'
 import { HeroTitle } from './_components/hero'

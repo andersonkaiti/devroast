@@ -42,7 +42,9 @@
   },
   "overrides": [
     {
-      "includes": ["src/components/ui/code-block.tsx"],
+      "includes": [
+        "src/components/ui/code-block.tsx"
+      ],
       "linter": {
         "rules": {
           "suspicious": {

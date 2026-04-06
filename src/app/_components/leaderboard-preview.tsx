@@ -1,6 +1,7 @@
 import { Button } from '@components/ui/button'
 import { CodeBlock } from '@components/ui/code-block'
 import { cn } from '@lib/utils'
+import { cacheLife } from 'next/cache'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import type { BundledLanguage } from 'shiki'
@@ -15,6 +16,9 @@ function scoreColor(score: number) {
 }
 
 async function LeaderboardTableServer() {
+  'use cache'
+  cacheLife({ revalidate: 3600 })
+
   const queryClient = getQueryClient()
 
   const [entries, stats] = await Promise.all([

@@ -1,5 +1,6 @@
 import { CodeBlock } from '@components/ui'
 import { cn } from '@lib/utils'
+import { cacheLife } from 'next/cache'
 import type { BundledLanguage } from 'shiki'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { LeaderboardPageContent } from './leaderboard-page-content'
@@ -11,6 +12,9 @@ function scoreColor(score: number) {
 }
 
 export async function LeaderboardPageServer({ limit }: { limit: number }) {
+  'use cache'
+  cacheLife({ revalidate: 3600 })
+
   const queryClient = getQueryClient()
 
   const entries = await queryClient.fetchQuery(

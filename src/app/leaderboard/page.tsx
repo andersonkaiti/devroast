@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic'
-
 import { Suspense } from 'react'
 import { LeaderboardTableSkeleton } from '@/app/_components/leaderboard-table-skeleton'
 import { HydrateClient, prefetch, trpc } from '@/trpc/server'
