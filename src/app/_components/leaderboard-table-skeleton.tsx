@@ -1,36 +1,35 @@
-import { LeaderboardTableHeader } from './leaderboard-table-header'
-
-function SkeletonRow() {
+function SkeletonCard() {
   return (
-    <div className="flex items-center gap-6 border-zinc-800 border-b px-5 py-4">
-      <span className="w-10 shrink-0">
-        <span className="block h-3 w-4 animate-pulse rounded bg-zinc-800" />
-      </span>
-      <span className="w-[60px] shrink-0">
-        <span className="block h-3 w-8 animate-pulse rounded bg-zinc-800" />
-      </span>
-      <span className="flex-1">
-        <span className="block h-3 w-3/4 animate-pulse rounded bg-zinc-800" />
-      </span>
-      <span className="w-[100px] shrink-0">
-        <span className="block h-3 w-16 animate-pulse rounded bg-zinc-800" />
-      </span>
+    <div className="overflow-hidden border border-zinc-800">
+      <div className="flex h-12 items-center justify-between border-zinc-800 border-b px-5">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <span className="block h-3 w-3 animate-pulse rounded bg-zinc-800" />
+            <span className="block h-3 w-4 animate-pulse rounded bg-zinc-700" />
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="block h-3 w-8 animate-pulse rounded bg-zinc-800" />
+            <span className="block h-3 w-6 animate-pulse rounded bg-zinc-700" />
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="block h-3 w-10 animate-pulse rounded bg-zinc-800" />
+          <span className="block h-3 w-12 animate-pulse rounded bg-zinc-800" />
+        </div>
+      </div>
+      <div className="h-[125px] animate-pulse bg-zinc-900" />
     </div>
   )
 }
 
+const SKELETON_KEYS = Array.from({ length: 20 }, (_, i) => `sk-${i}`)
+
 export function LeaderboardTableSkeleton() {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="overflow-x-auto">
-        <div className="min-w-[420px] overflow-hidden border border-zinc-800">
-          <LeaderboardTableHeader />
-          <SkeletonRow />
-          <SkeletonRow />
-          <SkeletonRow />
-        </div>
-      </div>
-      <span className="block h-3 w-48 animate-pulse self-center rounded bg-zinc-800" />
+    <div className="flex flex-col gap-5">
+      {SKELETON_KEYS.map((id) => (
+        <SkeletonCard key={id} />
+      ))}
     </div>
   )
 }

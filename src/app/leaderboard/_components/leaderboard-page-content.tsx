@@ -12,7 +12,7 @@ function CodePreview({ codeBlock }: { codeBlock: ReactNode }) {
         {codeBlock}
       </div>
       {!expanded && (
-        <div className="absolute inset-x-0 bottom-0 flex h-16 flex-col justify-end bg-gradient-to-t from-[#101010] to-transparent">
+        <div className="absolute inset-x-0 bottom-0 flex h-16 flex-col justify-end bg-linear-to-t from-[#101010] to-transparent">
           <button
             type="button"
             onClick={() => setExpanded(true)}

@@ -7,6 +7,7 @@ import type { BundledLanguage } from 'shiki'
 import { LeaderboardTableSkeleton } from '@/app/_components/leaderboard-table-skeleton'
 import { getQueryClient, HydrateClient, prefetch, trpc } from '@/trpc/server'
 import { LeaderboardPageContent } from './_components/leaderboard-page-content'
+import { LeaderboardStats } from './_components/leaderboard-stats'
 
 export const metadata = {
   title: 'Leaderboard - DevRoast',
@@ -22,10 +23,9 @@ function scoreColor(score: number) {
 async function LeaderboardPageServer() {
   const queryClient = getQueryClient()
 
-  const [entries, stats] = await Promise.all([
-    queryClient.fetchQuery(trpc.leaderboard.top20.queryOptions()),
-    queryClient.fetchQuery(trpc.leaderboard.stats.queryOptions()),
-  ])
+  const entries = await queryClient.fetchQuery(
+    trpc.leaderboard.top20.queryOptions(),
+  )
 
   const codeBlocks = entries.map((entry, i) => {
     const lineCount = entry.code.split('\n').length
@@ -70,16 +70,7 @@ async function LeaderboardPageServer() {
     }
   })
 
-  return (
-    <div className="flex flex-col gap-8">
-      <p className="font-mono text-sm text-zinc-600">
-        {stats.total.toLocaleString()} submissions · avg score:{' '}
-        {stats.avgScore.toFixed(1)}/10
-      </p>
-
-      <LeaderboardPageContent codeBlocks={codeBlocks} />
-    </div>
-  )
+  return <LeaderboardPageContent codeBlocks={codeBlocks} />
 }
 
 export default async function LeaderboardPage() {
@@ -102,6 +93,8 @@ export default async function LeaderboardPage() {
             {'// the most roasted code on the internet'}
           </p>
         </div>
+
+        <LeaderboardStats />
 
         <Suspense fallback={<LeaderboardTableSkeleton />}>
           <LeaderboardPageServer />
