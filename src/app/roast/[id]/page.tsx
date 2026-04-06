@@ -6,6 +6,8 @@ import {
   DiffLine,
   ScoreRing,
 } from '@components/ui'
+import { Divider } from './_components/divider'
+import { SectionTitle } from './_components/section-title'
 
 const STATIC_ROAST = {
   score: 3.5,
@@ -74,23 +76,6 @@ const DIFF_LINES: {
   },
   { variant: 'context', content: '}' },
 ]
-
-function SectionTitle({ children }: { children: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className="font-bold font-mono text-emerald-500 text-sm">
-        {'//'}
-      </span>
-      <span className="font-bold font-mono text-sm text-zinc-50">
-        {children}
-      </span>
-    </div>
-  )
-}
-
-function Divider() {
-  return <div className="h-px bg-zinc-800" />
-}
 
 export default async function RoastResultPage() {
   return (
