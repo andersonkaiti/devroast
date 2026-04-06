@@ -32,12 +32,13 @@ export function LeaderboardPageContent({
   codeBlocks: { id: string; node: ReactNode }[]
 }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {codeBlocks.map(({ id, node }) => (
-        <div key={id} className="overflow-x-auto">
-          <div className="min-w-[420px] overflow-hidden border border-zinc-800">
-            <CodePreview codeBlock={node} />
-          </div>
+        <div
+          key={id}
+          className="overflow-hidden overflow-x-auto border border-zinc-800"
+        >
+          <CodePreview codeBlock={node} />
         </div>
       ))}
     </div>

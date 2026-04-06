@@ -38,21 +38,29 @@ async function LeaderboardPageServer() {
           lang={entry.lang as BundledLanguage}
           className="border-0 border-zinc-800 border-t"
         >
-          <div className="flex h-10 items-center justify-between border-zinc-800 border-b px-4 font-mono">
+          <div className="flex h-12 items-center justify-between border-zinc-800 border-b px-5 font-mono">
             <div className="flex items-center gap-4">
-              <span className="text-[12px] text-gray-600">#{i + 1}</span>
-              <span
-                className={cn(
-                  'font-bold text-[12px]',
-                  scoreColor(Number(entry.score)),
-                )}
-              >
-                score {Number(entry.score).toFixed(1)}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] text-zinc-600">#</span>
+                <span className="font-bold text-[13px] text-amber-500">
+                  {i + 1}
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[12px] text-zinc-600">score:</span>
+                <span
+                  className={cn(
+                    'font-bold text-[13px]',
+                    scoreColor(Number(entry.score)),
+                  )}
+                >
+                  {Number(entry.score).toFixed(1)}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-[12px] text-gray-600">{entry.lang}</span>
-              <span className="text-[12px] text-gray-600">
+            <div className="flex items-center gap-3">
+              <span className="text-[12px] text-zinc-400">{entry.lang}</span>
+              <span className="text-[12px] text-zinc-600">
                 {lineCount} lines
               </span>
             </div>
@@ -65,8 +73,8 @@ async function LeaderboardPageServer() {
   return (
     <div className="flex flex-col gap-8">
       <p className="font-mono text-sm text-zinc-600">
-        {'// '}
-        {stats.total} submissions · avg score {stats.avgScore.toFixed(1)}
+        {stats.total.toLocaleString()} submissions · avg score:{' '}
+        {stats.avgScore.toFixed(1)}/10
       </p>
 
       <LeaderboardPageContent codeBlocks={codeBlocks} />
