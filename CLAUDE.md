@@ -101,7 +101,7 @@ Follows [Conventional Commits](https://www.conventionalcommits.org/) combined wi
 
 - Single line only — no body, no footer, no blank lines
 - Description in **imperative mood**, lowercase, no period at the end
-- Subject line: max **4 words** after the type prefix
+- Be descriptive but concise — explain what changed and why in one line
 - No `Co-authored-by`, `Co-Authored-By`, or any AI attribution
 
 | Type | Emoji | When to use |
@@ -131,11 +131,11 @@ Follows [Conventional Commits](https://www.conventionalcommits.org/) combined wi
 **Examples:**
 
 ```
-🎉 feat(core): initial project setup
-✨ feat(auth): add auth flow
-🐛 fix(auth): resolve token expiry
-♻️ refactor(forms): extract form logic
-📦 build(deps): add radix-ui deps
+🎉 feat(core): initial project setup with next.js and tailwind
+✨ feat(auth): add google oauth flow with session persistence
+🐛 fix(auth): resolve token expiry causing silent logout on refresh
+♻️ refactor(forms): extract validation logic into reusable hook
+📦 build(deps): add radix-ui for accessible dialog and tooltip primitives
 ```
 
 ## Typography
