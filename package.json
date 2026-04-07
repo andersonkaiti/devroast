@@ -16,12 +16,14 @@
     "db:seed": "tsx --env-file=.env src/db/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.59",
     "@base-ui-components/react": "1.0.0-rc.0",
     "@number-flow/react": "^0.6.0",
     "@tanstack/react-query": "^5.96.2",
     "@trpc/client": "^11.16.0",
     "@trpc/server": "^11.16.0",
     "@trpc/tanstack-react-query": "^11.16.0",
+    "ai": "^6.0.151",
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
