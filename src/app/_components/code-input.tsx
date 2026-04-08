@@ -6,10 +6,10 @@ import { LanguageSelector } from '@components/ui/language-selector'
 import { Toggle } from '@components/ui/toggle'
 import { EditorProvider } from '@context/editor-context'
 import { useEditorHighlighter } from '@hooks/useEditorHighlighter'
-import { useTRPC } from '@/trpc/client'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
+import { useTRPC } from '@/trpc/client'
 
 const DOTS = [
   { key: 'close', className: 'bg-red-500' },

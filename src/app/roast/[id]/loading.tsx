@@ -1,7 +1,7 @@
 import { AnalysisSectionSkeleton } from './_components/analysis-section/skeleton'
 import { DiffSectionSkeleton } from './_components/diff-section/skeleton'
-import { ScoreHeroSkeleton } from './_components/score-hero/skeleton'
 import { Divider } from './_components/divider'
+import { ScoreHeroSkeleton } from './_components/score-hero/skeleton'
 import { SectionTitle } from './_components/section-title'
 
 export default function RoastResultLoading() {
