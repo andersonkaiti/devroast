@@ -35,10 +35,12 @@ export default async function RoastResultPage({
       lang={submission.lang}
       lineCount={lineCount}
     >
-      <CodeBlock
-        code={submission.code}
-        lang={submission.lang as BundledLanguage}
-      />
+      <div>
+        <CodeBlock
+          code={submission.code}
+          lang={submission.lang as BundledLanguage}
+        />
+      </div>
     </RoastStreamContent>
   )
 }

@@ -141,6 +141,7 @@ export function CodeInput() {
                   wordWrap: 'break-word',
                   overflowWrap: 'break-word',
                 }}
+                suppressHydrationWarning
                 placeholder={
                   "// paste your code here\n// we'll roast it — no mercy"
                 }
@@ -189,6 +190,7 @@ export function CodeInput() {
             className="w-full sm:w-auto"
             onClick={handleRoast}
             disabled={isOverLimit || isSubmitting || code.length < 10}
+            suppressHydrationWarning
           >
             {isSubmitting ? '$ roasting...' : '$ roast_my_code'}
           </Button>
