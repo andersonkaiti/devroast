@@ -1,4 +1,5 @@
 import { cn } from '@lib/utils'
+import { unstable_cache } from 'next/cache'
 import type * as React from 'react'
 import { type BundledLanguage, codeToTokens } from 'shiki'
 
@@ -9,16 +10,19 @@ type CodeBlockRootProps = {
   children?: React.ReactNode
 }
 
+const getTokens = unstable_cache(
+  async (code: string, lang: BundledLanguage) =>
+    codeToTokens(code, { lang, theme: 'vesper' }),
+  ['shiki-highlight'],
+)
+
 async function CodeBlockRoot({
   code,
   lang,
   className,
   children,
 }: CodeBlockRootProps) {
-  const { tokens, bg } = await codeToTokens(code, {
-    lang,
-    theme: 'vesper',
-  })
+  const { tokens, bg } = await getTokens(code, lang)
 
   return (
     <div

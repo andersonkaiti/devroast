@@ -8,6 +8,8 @@ import {
   PageTitle,
   ScoreRing,
 } from '@components/ui'
+import { connection } from 'next/server'
+import { Suspense } from 'react'
 import { ToggleDemo } from '../_components/toggle-demo'
 import { SectionLabel } from './_components/section-label'
 
@@ -18,9 +20,17 @@ const SAMPLE_CODE = `function calculateTotal(items) {
   }
 }`
 
+async function OptDynamic() {
+  await connection()
+  return null
+}
+
 export default async function ComponentsPage() {
   return (
     <main className="mx-auto flex w-full max-w-[960px] flex-col gap-16 px-4 pt-16 pb-20 sm:px-10 sm:pt-20">
+      <Suspense fallback={null}>
+        <OptDynamic />
+      </Suspense>
       {/* Title */}
       <PageTitle prefix={'//'}>component_library</PageTitle>
 

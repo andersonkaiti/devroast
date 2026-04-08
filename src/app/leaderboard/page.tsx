@@ -10,7 +10,7 @@ export const metadata = {
 
 const MAX_LIMIT = 20
 
-export default async function LeaderboardPage({
+async function DynamicWrapper({
   searchParams,
 }: {
   searchParams: Promise<{ limit?: string }>
@@ -21,6 +21,14 @@ export default async function LeaderboardPage({
     MAX_LIMIT,
   )
 
+  return <LeaderboardPageServer limit={limit} />
+}
+
+export default function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ limit?: string }>
+}) {
   return (
     <main className="mx-auto flex w-full max-w-[960px] flex-col gap-6 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
       <div className="flex flex-col gap-2">
@@ -39,8 +47,8 @@ export default async function LeaderboardPage({
 
       <LeaderboardStats />
 
-      <Suspense fallback={<LeaderboardTableSkeleton count={limit} />}>
-        <LeaderboardPageServer limit={limit} />
+      <Suspense fallback={<LeaderboardTableSkeleton count={20} />}>
+        <DynamicWrapper searchParams={searchParams} />
       </Suspense>
     </main>
   )
