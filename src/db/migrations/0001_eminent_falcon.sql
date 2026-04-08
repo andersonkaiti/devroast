@@ -1,0 +1,1 @@
+ALTER TABLE "submissions" ADD COLUMN "suggested_code" text DEFAULT '' NOT NULL;

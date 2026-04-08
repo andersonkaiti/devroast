@@ -20,6 +20,7 @@ export const submissions = pgTable(
     roastMode: roastModeEnum().notNull(),
     score: numeric({ precision: 3, scale: 1 }).notNull(),
     roastText: text().notNull(),
+    suggestedCode: text().notNull().default(''),
     isPublic: boolean().default(true).notNull(),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
