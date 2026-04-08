@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { CodePreview } from '@/app/_components/code-preview'
 
@@ -11,12 +12,13 @@ export function LeaderboardPageContent({
   return (
     <div className="flex flex-col gap-5">
       {codeBlocks.map(({ id, node }) => (
-        <div
+        <Link
           key={id}
-          className="overflow-hidden overflow-x-auto border border-zinc-800"
+          href={`/roast/${id}`}
+          className="block overflow-hidden overflow-x-auto border border-zinc-800 transition-colors hover:border-zinc-600"
         >
           <CodePreview codeBlock={node} />
-        </div>
+        </Link>
       ))}
     </div>
   )
