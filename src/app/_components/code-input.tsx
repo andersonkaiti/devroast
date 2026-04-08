@@ -38,10 +38,16 @@ export function CodeInput() {
   const trpc = useTRPC()
   const router = useRouter()
 
-  const { mutate: createRoast, isPending } = useMutation({
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { mutate: createRoast } = useMutation({
     ...trpc.roast.create.mutationOptions(),
     onSuccess: ({ id }) => {
       router.push(`/roast/${id}`)
+      // isSubmitting stays true — component unmounts on navigation
+    },
+    onError: () => {
+      setIsSubmitting(false)
     },
   })
 
@@ -63,13 +69,15 @@ export function CodeInput() {
   }, [])
 
   const handleRoast = useCallback(() => {
+    if (isSubmitting) return
+    setIsSubmitting(true)
     const resolvedLang = language === 'js' ? detectedLanguage : language
     createRoast({
       code,
       lang: resolvedLang,
       roastMode: roastMode ? 'roast' : 'honest',
     })
-  }, [code, language, detectedLanguage, roastMode, createRoast])
+  }, [code, language, detectedLanguage, roastMode, createRoast, isSubmitting])
 
   const charCount = code.length
   const isOverLimit = charCount > CHAR_LIMIT
@@ -180,9 +188,9 @@ export function CodeInput() {
             variant="primary"
             className="w-full sm:w-auto"
             onClick={handleRoast}
-            disabled={isOverLimit || isPending || code.length < 10}
+            disabled={isOverLimit || isSubmitting || code.length < 10}
           >
-            {isPending ? '$ roasting...' : '$ roast_my_code'}
+            {isSubmitting ? '$ roasting...' : '$ roast_my_code'}
           </Button>
         </div>
       </div>

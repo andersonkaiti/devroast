@@ -121,35 +121,6 @@ export function RoastStreamContent({ id, lang, lineCount, children }: RoastStrea
     return () => es.close()
   }, [id])
 
-  if (state.status === 'connecting') {
-    return (
-      <main className="mx-auto flex w-full max-w-[960px] flex-col gap-10 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
-        <section className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
-          <div className="size-[180px] shrink-0 animate-pulse rounded-full bg-zinc-900" />
-          <div className="flex w-full flex-col gap-4">
-            <div className="h-4 w-48 animate-pulse rounded bg-zinc-900" />
-            <div className="h-6 w-full animate-pulse rounded bg-zinc-900" />
-            <div className="h-3 w-32 animate-pulse rounded bg-zinc-900" />
-          </div>
-        </section>
-        <Divider />
-        <section className="flex flex-col gap-4">
-          <div className="h-4 w-40 animate-pulse rounded bg-zinc-900" />
-          <div className="h-64 w-full animate-pulse rounded bg-zinc-900" />
-        </section>
-        <Divider />
-        <section className="flex flex-col gap-6">
-          <div className="h-4 w-40 animate-pulse rounded bg-zinc-900" />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-32 w-full animate-pulse rounded bg-zinc-900" />
-            ))}
-          </div>
-        </section>
-      </main>
-    )
-  }
-
   if (state.status === 'error') {
     return (
       <main className="mx-auto flex w-full max-w-[960px] flex-col items-start gap-6 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
@@ -163,12 +134,14 @@ export function RoastStreamContent({ id, lang, lineCount, children }: RoastStrea
     )
   }
 
+  const isLoading = state.status === 'connecting' || state.status === 'streaming'
   const verdict = state.score !== null ? getVerdict(state.score) : null
+  const skeletonFindingCount = Math.max(0, 4 - state.findings.length)
 
   return (
     <main className="mx-auto flex w-full max-w-[960px] flex-col gap-10 px-4 pt-12 pb-10 sm:px-10 sm:pt-20 sm:pb-16">
       {/* Score Hero */}
-      {state.score !== null && (
+      {state.score !== null ? (
         <section className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
           <ScoreRing score={state.score} />
           <div className="flex flex-col gap-4">
@@ -190,6 +163,15 @@ export function RoastStreamContent({ id, lang, lineCount, children }: RoastStrea
             </div>
           </div>
         </section>
+      ) : (
+        <section className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
+          <div className="size-[180px] shrink-0 animate-pulse rounded-full bg-zinc-900" />
+          <div className="flex w-full flex-col gap-4">
+            <div className="h-4 w-48 animate-pulse rounded bg-zinc-900" />
+            <div className="h-6 w-full animate-pulse rounded bg-zinc-900" />
+            <div className="h-3 w-32 animate-pulse rounded bg-zinc-900" />
+          </div>
+        </section>
       )}
 
       <Divider />
@@ -203,25 +185,27 @@ export function RoastStreamContent({ id, lang, lineCount, children }: RoastStrea
       <Divider />
 
       {/* Analysis */}
-      {state.findings.length > 0 && (
-        <section className="flex flex-col gap-6">
-          <SectionTitle>detailed_analysis</SectionTitle>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {state.findings.map((finding) => (
-              <AnalysisCard key={finding.title}>
-                <Badge severity={finding.severity}>{finding.severity}</Badge>
-                <AnalysisCard.Title>{finding.title}</AnalysisCard.Title>
-                <AnalysisCard.Description>{finding.description}</AnalysisCard.Description>
-              </AnalysisCard>
+      <section className="flex flex-col gap-6">
+        <SectionTitle>detailed_analysis</SectionTitle>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          {state.findings.map((finding) => (
+            <AnalysisCard key={finding.title}>
+              <Badge severity={finding.severity}>{finding.severity}</Badge>
+              <AnalysisCard.Title>{finding.title}</AnalysisCard.Title>
+              <AnalysisCard.Description>{finding.description}</AnalysisCard.Description>
+            </AnalysisCard>
+          ))}
+          {isLoading &&
+            Array.from({ length: skeletonFindingCount }, (_, i) => (
+              <div key={`sk-${i}`} className="h-32 w-full animate-pulse rounded bg-zinc-900" />
             ))}
-          </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      {state.findings.length > 0 && state.diffLines.length > 0 && <Divider />}
+      {(state.diffLines.length > 0 || isLoading) && <Divider />}
 
       {/* Suggested Fix */}
-      {state.diffLines.length > 0 && (
+      {state.diffLines.length > 0 ? (
         <section className="flex flex-col gap-6">
           <SectionTitle>suggested_fix</SectionTitle>
           <div className="border border-zinc-800">
@@ -240,7 +224,12 @@ export function RoastStreamContent({ id, lang, lineCount, children }: RoastStrea
             </div>
           </div>
         </section>
-      )}
+      ) : isLoading ? (
+        <section className="flex flex-col gap-6">
+          <div className="h-4 w-40 animate-pulse rounded bg-zinc-900" />
+          <div className="h-40 w-full animate-pulse rounded bg-zinc-900" />
+        </section>
+      ) : null}
     </main>
   )
 }
