@@ -175,7 +175,7 @@ export async function GET(
             : 'You are a senior engineer giving direct, constructive code review.'
 
         const result = streamText({
-          model: google('gemini-2.0-flash'),
+          model: google('gemini-2.5-flash'),
           system: systemPrompt,
           prompt: buildPrompt(submission.code, submission.lang),
         })
