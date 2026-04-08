@@ -30,7 +30,7 @@ const prefix = tv({
 })
 
 const code = tv({
-  base: '',
+  base: 'whitespace-pre-wrap break-all flex-1',
   variants: {
     variant: {
       removed: 'text-gray-500',
