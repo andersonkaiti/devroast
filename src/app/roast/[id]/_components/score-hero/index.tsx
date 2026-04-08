@@ -1,6 +1,7 @@
 'use client'
 
 import { Badge, Button, ScoreRing } from '@components/ui'
+import { useState } from 'react'
 import { getVerdict } from '../get-verdict'
 import type { RoastResult } from '../use-roast'
 
@@ -12,6 +13,13 @@ interface ScoreHeroProps {
 
 export function ScoreHero({ result, lang, lineCount }: ScoreHeroProps) {
   const verdict = getVerdict(result.score)
+  const [copied, setCopied] = useState(false)
+
+  function handleShare() {
+    navigator.clipboard.writeText(window.location.href)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
     <section className="flex flex-col items-start gap-10 sm:flex-row sm:items-center">
@@ -25,8 +33,8 @@ export function ScoreHero({ result, lang, lineCount }: ScoreHeroProps) {
           lang: {lang} · {lineCount} lines
         </p>
         <div>
-          <Button variant="outline" size="sm" disabled>
-            $ share_roast
+          <Button variant="outline" size="sm" onClick={handleShare}>
+            {copied ? '$ link_copied!' : '$ share_roast'}
           </Button>
         </div>
       </div>
