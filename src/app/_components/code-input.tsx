@@ -6,6 +6,9 @@ import { LanguageSelector } from '@components/ui/language-selector'
 import { Toggle } from '@components/ui/toggle'
 import { EditorProvider } from '@context/editor-context'
 import { useEditorHighlighter } from '@hooks/useEditorHighlighter'
+import { useTRPC } from '@/trpc/client'
+import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 
 const DOTS = [
@@ -16,11 +19,7 @@ const DOTS = [
 
 const CHAR_LIMIT = 2000
 
-interface CodeInputV2Props {
-  onRoast?: (code: string, language: string) => void
-}
-
-export function CodeInput({ onRoast }: CodeInputV2Props) {
+export function CodeInput() {
   const [roastMode, setRoastMode] = useState(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
@@ -35,6 +34,16 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
     setCode,
     setLanguage,
   } = useEditorHighlighter()
+
+  const trpc = useTRPC()
+  const router = useRouter()
+
+  const { mutate: createRoast, isPending } = useMutation({
+    ...trpc.roast.create.mutationOptions(),
+    onSuccess: ({ id }) => {
+      router.push(`/roast/${id}`)
+    },
+  })
 
   const handleInput = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -54,15 +63,16 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
   }, [])
 
   const handleRoast = useCallback(() => {
-    if (onRoast) {
-      onRoast(code, language)
-    }
-  }, [code, language, onRoast])
+    const resolvedLang = language === 'js' ? detectedLanguage : language
+    createRoast({
+      code,
+      lang: resolvedLang,
+      roastMode: roastMode ? 'roast' : 'honest',
+    })
+  }, [code, language, detectedLanguage, roastMode, createRoast])
 
   const charCount = code.length
   const isOverLimit = charCount > CHAR_LIMIT
-
-  // Calculate number of lines for the line numbers column
   const lineCount = code.split('\n').length || 1
 
   return (
@@ -170,9 +180,9 @@ export function CodeInput({ onRoast }: CodeInputV2Props) {
             variant="primary"
             className="w-full sm:w-auto"
             onClick={handleRoast}
-            disabled={isOverLimit}
+            disabled={isOverLimit || isPending || code.length < 10}
           >
-            $ roast_my_code
+            {isPending ? '$ roasting...' : '$ roast_my_code'}
           </Button>
         </div>
       </div>
