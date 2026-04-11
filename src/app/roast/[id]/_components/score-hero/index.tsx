@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { getVerdict } from '../get-verdict'
 import type { RoastResult } from '../use-roast'
 
+const COPY_FEEDBACK_DURATION_MS = 2000
+
 interface ScoreHeroProps {
   result: RoastResult
   lang: string
@@ -18,7 +20,7 @@ export function ScoreHero({ result, lang, lineCount }: ScoreHeroProps) {
   function handleShare() {
     navigator.clipboard.writeText(window.location.href)
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setCopied(false), COPY_FEEDBACK_DURATION_MS)
   }
 
   return (

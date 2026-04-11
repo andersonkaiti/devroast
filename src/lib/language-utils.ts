@@ -1,9 +1,6 @@
 import { type BundledLanguage, bundledLanguages } from 'shiki'
 
-// Map from hljs language names to Shiki BundledLanguage
-// Only keep aliases that hljs might return from highlightAuto()
 const HLJS_TO_SHIKI: Record<string, string> = {
-  // Aliases for common languages
   javascript: 'js',
   typescript: 'ts',
   python: 'py',
@@ -34,7 +31,6 @@ const HLJS_TO_SHIKI: Record<string, string> = {
   hs: 'haskell',
   ml: 'ocaml',
   fs: 'fsharp',
-  // Direct mappings (already canonical)
   js: 'js',
   ts: 'ts',
   py: 'py',
@@ -180,15 +176,18 @@ export function getAllLanguages(): BundledLanguage[] {
   return Object.keys(bundledLanguages) as BundledLanguage[]
 }
 
+let cachedLanguageList: Array<{ id: BundledLanguage; name: string }> | null =
+  null
+
 export function getLanguageList(): Array<{
   id: BundledLanguage
   name: string
 }> {
-  const langs = getAllLanguages()
-  return langs
-    .map((lang) => ({
-      id: lang,
-      name: formatLanguageName(lang),
-    }))
+  if (cachedLanguageList) return cachedLanguageList
+
+  cachedLanguageList = getAllLanguages()
+    .map((lang) => ({ id: lang, name: formatLanguageName(lang) }))
     .sort((a, b) => a.name.localeCompare(b.name))
+
+  return cachedLanguageList
 }

@@ -18,6 +18,7 @@ const DOTS = [
 ]
 
 const CHAR_LIMIT = 2000
+const MIN_EDITOR_LINES = 20
 
 export function CodeInput() {
   const [roastMode, setRoastMode] = useState(true)
@@ -44,7 +45,6 @@ export function CodeInput() {
     ...trpc.roast.create.mutationOptions(),
     onSuccess: ({ id }) => {
       router.push(`/roast/${id}`)
-      // isSubmitting stays true — component unmounts on navigation
     },
     onError: () => {
       setIsSubmitting(false)
@@ -113,13 +113,13 @@ export function CodeInput() {
           </div>
 
           <div className="relative flex h-[240px] overflow-y-auto sm:h-[360px]">
-            {/* Line numbers */}
             <div
               ref={lineNumbersRef}
               className="flex w-12 shrink-0 flex-col items-end overflow-hidden border-zinc-800 border-r bg-neutral-950 px-3 py-4"
             >
-              {Array.from({ length: Math.max(lineCount, 20) }, (_, i) =>
-                String(i + 1),
+              {Array.from(
+                { length: Math.max(lineCount, MIN_EDITOR_LINES) },
+                (_, i) => String(i + 1),
               ).map((n) => (
                 <span key={n} className="text-[12px] text-gray-600 leading-5">
                   {n}
@@ -127,9 +127,7 @@ export function CodeInput() {
               ))}
             </div>
 
-            {/* Editor with overlay pattern */}
             <div className="relative flex-1 overflow-y-auto">
-              {/* Textarea (transparent, on top for input) */}
               <textarea
                 ref={textareaRef}
                 className="relative z-10 block h-full w-full resize-none bg-transparent p-4 text-transparent caret-zinc-50 placeholder:text-gray-600 focus:outline-none"
@@ -151,7 +149,6 @@ export function CodeInput() {
                 onScroll={handleScroll}
               />
 
-              {/* Highlight display (behind textarea) */}
               <div
                 ref={overlayRef}
                 className="pointer-events-none absolute inset-0 overflow-y-auto"

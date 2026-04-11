@@ -1,4 +1,5 @@
 import 'server-only'
+import type { FetchQueryOptions } from '@tanstack/react-query'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
 import { createTRPCContext } from './init'
@@ -21,7 +22,6 @@ export function HydrateClient({ children }: { children: React.ReactNode }) {
   )
 }
 
-// biome-ignore lint/suspicious/noExplicitAny: tRPC query options have narrower generic bounds than QueryClient.prefetchQuery expects
-export function prefetch(queryOptions: any) {
+export function prefetch(queryOptions: FetchQueryOptions) {
   return getQueryClient().prefetchQuery(queryOptions)
 }

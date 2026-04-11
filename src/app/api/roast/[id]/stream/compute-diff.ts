@@ -40,11 +40,10 @@ export function computeDiff(
     }
   }
 
-  // Post-processing: inherit indentation from removed lines if added lines lack it
   for (let k = 0; k < result.length; k++) {
     if (result[k].variant === 'added') {
       let nearestRemovedIdx = -1
-      // Search backwards in the current diff block
+
       for (let l = k - 1; l >= 0; l--) {
         if (result[l].variant === 'context') break
         if (result[l].variant === 'removed') {
@@ -52,7 +51,7 @@ export function computeDiff(
           break
         }
       }
-      // If not found backwards, search forwards in the current diff block
+
       if (nearestRemovedIdx === -1) {
         for (let l = k + 1; l < result.length; l++) {
           if (result[l].variant === 'context') break

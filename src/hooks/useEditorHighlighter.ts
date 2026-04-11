@@ -6,6 +6,33 @@ import hljs from 'highlight.js'
 import { useCallback, useEffect, useReducer, useRef } from 'react'
 import type { BundledLanguage, TokensResult } from 'shiki'
 
+const DEBOUNCE_MS = 100
+const SHIKI_THEME = 'vesper'
+
+const DETECTION_LANGUAGES = [
+  'javascript',
+  'typescript',
+  'python',
+  'java',
+  'csharp',
+  'cpp',
+  'c',
+  'php',
+  'ruby',
+  'go',
+  'rust',
+  'kotlin',
+  'swift',
+  'html',
+  'css',
+  'json',
+  'yaml',
+  'sql',
+  'bash',
+  'dockerfile',
+  'markdown',
+]
+
 interface EditorState {
   code: string
   language: BundledLanguage
@@ -61,7 +88,6 @@ export function useEditorHighlighter() {
   const [state, dispatch] = useReducer(editorReducer, initialState)
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Initialize Shiki on mount
   useEffect(() => {
     getHighlighter().catch((err) => {
       dispatch({
@@ -80,20 +106,16 @@ export function useEditorHighlighter() {
         const highlighter = await getHighlighter()
         const result = await highlighter.codeToTokens(code, {
           lang,
-          theme: 'vesper',
+          theme: SHIKI_THEME,
         })
 
         dispatch({ type: 'SET_TOKENS', payload: result })
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Unknown error'
         dispatch({ type: 'SET_ERROR', payload: errorMsg })
-        // Fallback: set empty tokens
         dispatch({
           type: 'SET_TOKENS',
-          payload: {
-            tokens: [],
-            bg: '#000000',
-          },
+          payload: { tokens: [], bg: '#000000' },
         })
       } finally {
         dispatch({ type: 'SET_HIGHLIGHTING', payload: false })
@@ -104,42 +126,13 @@ export function useEditorHighlighter() {
 
   const detectLanguage = useCallback((code: string): BundledLanguage => {
     try {
-      // List of common languages to improve detection accuracy
-      const commonLangs = [
-        'javascript',
-        'typescript',
-        'python',
-        'java',
-        'csharp',
-        'cpp',
-        'c',
-        'php',
-        'ruby',
-        'go',
-        'rust',
-        'kotlin',
-        'swift',
-        'html',
-        'css',
-        'json',
-        'yaml',
-        'sql',
-        'bash',
-        'dockerfile',
-        'markdown',
-      ]
-
-      const results = commonLangs
-        .map((lang) => {
-          try {
-            return hljs.highlight(code, {
-              language: lang,
-              ignoreIllegals: true,
-            })
-          } catch (_err) {
-            return { relevance: 0, language: lang }
-          }
-        })
+      const results = DETECTION_LANGUAGES.map((lang) => {
+        try {
+          return hljs.highlight(code, { language: lang, ignoreIllegals: true })
+        } catch (_err) {
+          return { relevance: 0, language: lang }
+        }
+      })
         .filter((r) => r.relevance > 0)
         .sort((a, b) => b.relevance - a.relevance)
 
@@ -158,22 +151,15 @@ export function useEditorHighlighter() {
     (newCode: string) => {
       dispatch({ type: 'SET_CODE', payload: newCode })
 
-      // Clear previous debounce
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
       }
 
-      // Debounce highlighting (300ms)
       debounceTimerRef.current = setTimeout(() => {
-        // Detect language first
         const detected = detectLanguage(newCode)
-
-        // Use user-selected language if set, otherwise use detected
         const langToUse = state.language !== 'js' ? state.language : detected
-
-        // Highlight with the determined language
         highlightCode(newCode, langToUse)
-      }, 100)
+      }, DEBOUNCE_MS)
     },
     [detectLanguage, highlightCode, state.language],
   )
@@ -181,8 +167,6 @@ export function useEditorHighlighter() {
   const setLanguage = useCallback(
     (lang: BundledLanguage) => {
       dispatch({ type: 'SET_LANGUAGE', payload: lang })
-
-      // Re-highlight with new language
       highlightCode(state.code, lang)
     },
     [highlightCode, state.code],

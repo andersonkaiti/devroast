@@ -1,10 +1,12 @@
 import { defaultShouldDehydrateQuery, QueryClient } from '@tanstack/react-query'
 import { cache } from 'react'
 
+const STALE_TIME_MS = 30 * 1000
+
 const makeQueryClient = () =>
   new QueryClient({
     defaultOptions: {
-      queries: { staleTime: 30 * 1000 },
+      queries: { staleTime: STALE_TIME_MS },
       dehydrate: {
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
@@ -13,6 +15,4 @@ const makeQueryClient = () =>
     },
   })
 
-// React.cache memoizes per server request.
-// On the client, TRPCReactProvider uses useState to keep the instance stable.
 export const getQueryClient = cache(makeQueryClient)
