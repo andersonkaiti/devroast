@@ -6,10 +6,9 @@ import { LanguageSelector } from '@components/ui/language-selector'
 import { Toggle } from '@components/ui/toggle'
 import { EditorProvider } from '@context/editor-context'
 import { useEditorHighlighter } from '@hooks/useEditorHighlighter'
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
-import { useCallback, useRef, useState } from 'react'
-import { useTRPC } from '@/trpc/client'
+import { useRoastSubmit } from '@hooks/useRoastSubmit'
+import { useScrollSync } from '@hooks/useScrollSync'
+import { useCallback, useState } from 'react'
 
 const DOTS = [
   { key: 'close', className: 'bg-red-500' },
@@ -22,9 +21,8 @@ const MIN_EDITOR_LINES = 20
 
 export function CodeInput() {
   const [roastMode, setRoastMode] = useState(true)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
-  const lineNumbersRef = useRef<HTMLDivElement>(null)
+  const { textareaRef, overlayRef, lineNumbersRef, handleScroll } =
+    useScrollSync()
 
   const {
     code,
@@ -36,20 +34,7 @@ export function CodeInput() {
     setLanguage,
   } = useEditorHighlighter()
 
-  const trpc = useTRPC()
-  const router = useRouter()
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const { mutate: createRoast } = useMutation({
-    ...trpc.roast.create.mutationOptions(),
-    onSuccess: ({ id }) => {
-      router.push(`/roast/${id}`)
-    },
-    onError: () => {
-      setIsSubmitting(false)
-    },
-  })
+  const { submit, isSubmitting } = useRoastSubmit()
 
   const handleInput = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -58,26 +43,14 @@ export function CodeInput() {
     [setCode],
   )
 
-  const handleScroll = useCallback(() => {
-    if (textareaRef.current && overlayRef.current) {
-      overlayRef.current.scrollTop = textareaRef.current.scrollTop
-      overlayRef.current.scrollLeft = textareaRef.current.scrollLeft
-    }
-    if (textareaRef.current && lineNumbersRef.current) {
-      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop
-    }
-  }, [])
-
   const handleRoast = useCallback(() => {
-    if (isSubmitting) return
-    setIsSubmitting(true)
     const resolvedLang = language === 'js' ? detectedLanguage : language
-    createRoast({
+    submit({
       code,
       lang: resolvedLang,
       roastMode: roastMode ? 'roast' : 'honest',
     })
-  }, [code, language, detectedLanguage, roastMode, createRoast, isSubmitting])
+  }, [code, language, detectedLanguage, roastMode, submit])
 
   const charCount = code.length
   const isOverLimit = charCount > CHAR_LIMIT
