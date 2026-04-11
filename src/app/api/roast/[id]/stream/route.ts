@@ -18,33 +18,41 @@ const systemPrompts = {
   review: 'You are a senior engineer giving direct, constructive code review.',
 } as const
 
+async function fetchSubmission(id: string) {
+  const [submission] = await db
+    .select()
+    .from(submissions)
+    .where(eq(submissions.id, id))
+    .limit(1)
+  return submission ?? null
+}
+
+async function fetchFindings(submissionId: string) {
+  return db
+    .select({
+      severity: analysisFindings.severity,
+      title: analysisFindings.title,
+      description: analysisFindings.description,
+    })
+    .from(analysisFindings)
+    .where(eq(analysisFindings.submissionId, submissionId))
+    .orderBy(analysisFindings.sortOrder)
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params
 
-  const [submission] = await db
-    .select()
-    .from(submissions)
-    .where(eq(submissions.id, id))
-    .limit(1)
+  const submission = await fetchSubmission(id)
 
   if (!submission) {
     return new Response('Not found', { status: 404 })
   }
 
   if (submission.roastText !== '') {
-    const findings = await db
-      .select({
-        severity: analysisFindings.severity,
-        title: analysisFindings.title,
-        description: analysisFindings.description,
-      })
-      .from(analysisFindings)
-      .where(eq(analysisFindings.submissionId, id))
-      .orderBy(analysisFindings.sortOrder)
-
+    const findings = await fetchFindings(id)
     return Response.json({
       score: Number(submission.score),
       quote: submission.roastText,
