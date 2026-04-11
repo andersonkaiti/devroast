@@ -11,11 +11,27 @@ export function CodePreview({ codeBlock }: { codeBlock: ReactNode }) {
       <div className={expanded ? undefined : 'max-h-[125px] overflow-hidden'}>
         {codeBlock}
       </div>
-      {!expanded && (
+      {expanded ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault()
+            event.stopPropagation()
+            setExpanded(false)
+          }}
+          className="w-full cursor-pointer py-2 font-mono text-[12px] text-zinc-500 transition-colors hover:text-zinc-300"
+        >
+          $ show_less {'<<'}
+        </button>
+      ) : (
         <div className="absolute inset-x-0 bottom-0 flex h-16 flex-col justify-end bg-linear-to-t from-[#101010] to-transparent">
           <button
             type="button"
-            onClick={() => setExpanded(true)}
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              setExpanded(true)
+            }}
             className="w-full cursor-pointer py-2 font-mono text-[12px] text-zinc-500 transition-colors hover:text-zinc-300"
           >
             $ show_more {'>>'}
