@@ -1,5 +1,6 @@
 import { Button } from '@components/ui/button'
 import { CodeBlock } from '@components/ui/code-block'
+import { scoreColor } from '@lib/score-utils'
 import { cn } from '@lib/utils'
 import { cacheLife } from 'next/cache'
 import Link from 'next/link'
@@ -8,12 +9,6 @@ import type { BundledLanguage } from 'shiki'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { LeaderboardTableContent } from './leaderboard-table-content'
 import { LeaderboardTableSkeleton } from './leaderboard-table-skeleton'
-
-function scoreColor(score: number) {
-  if (score <= 4) return 'text-red-500'
-  if (score <= 6) return 'text-amber-500'
-  return 'text-emerald-500'
-}
 
 async function LeaderboardTableServer() {
   'use cache'

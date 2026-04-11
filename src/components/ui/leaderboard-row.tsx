@@ -1,11 +1,6 @@
+import { scoreColor } from '@lib/score-utils'
 import { cn } from '@lib/utils'
 import * as React from 'react'
-
-function scoreColor(score: number) {
-  if (score <= 4) return 'text-red-500'
-  if (score <= 6) return 'text-amber-500'
-  return 'text-emerald-500'
-}
 
 const Root = React.forwardRef<
   HTMLDivElement,

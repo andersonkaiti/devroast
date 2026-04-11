@@ -1,15 +1,10 @@
 import { CodeBlock } from '@components/ui'
+import { scoreColor } from '@lib/score-utils'
 import { cn } from '@lib/utils'
 import { cacheLife } from 'next/cache'
 import type { BundledLanguage } from 'shiki'
 import { getQueryClient, trpc } from '@/trpc/server'
 import { LeaderboardPageContent } from './leaderboard-page-content'
-
-function scoreColor(score: number) {
-  if (score <= 4) return 'text-red-500'
-  if (score <= 6) return 'text-amber-500'
-  return 'text-emerald-500'
-}
 
 export async function LeaderboardPageServer({ limit }: { limit: number }) {
   'use cache'
